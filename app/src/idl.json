@@ -4,17 +4,13 @@
     "constants": [
         {
             "name": "USER_SEED",
-            "type": {
-                "defined": "&[u8]"
-            },
-            "value": "b\"user\""
+            "type": "bytes",
+            "value": "[117, 115, 101, 114]"
         },
         {
             "name": "POST_SEED",
-            "type": {
-                "defined": "&[u8]"
-            },
-            "value": "b\"post\""
+            "type": "bytes",
+            "value": "[112, 111, 115, 116]"
         }
     ],
     "instructions": [
@@ -141,8 +137,5 @@
                 ]
             }
         }
-    ],
-    "metadata": {
-        "address": "FVDLUX9ZnEp943trRR3taTCpEHbZouRRi1bkKqWHPb3j"
-    }
+    ]
 }
