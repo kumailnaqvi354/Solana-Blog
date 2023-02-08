@@ -31,8 +31,9 @@ export const useBlog = () => {
 };
 
 export const BlogProvider = ({ children }) => {
-  const [user, setUser] = useState()
+  const [user, setUser] = useState();
   const [initialized, setInitialized] = useState(false);
+  const [transactionPending, setTransactionPending] = useState(false);
 
   // const user = {
   //   name: "dog",
@@ -64,35 +65,68 @@ export const BlogProvider = ({ children }) => {
   // console.log("PROGRAM HERE", program);
 
   useEffect(() => {
-   const start =  async () =>{
-    console.log("starting app and fetching data");
-    // IF there is a user FETCH POSTS
-    //IF NO iser Set state to false (need a button to init user)
-    if(program && publicKey){
-      try {
-        //check if there is a user
-        const [userPda] = await findProgramAddressSync([utf8.encode('user'), publicKey.toBuffer()], program.programId);
-        const user = await program.account.userAccount.fetch(userPda);  
-        if(user){
-        setInitialized(true);
+    const start = async () => {
+      console.log("starting app and fetching data");
+      // IF there is a user FETCH POSTS
+      //IF NO iser Set state to false (need a button to init user)
+      if (program && publicKey) {
+        try {
+          setTransactionPending(true);
+
+          //check if there is a user
+          const [userPda] = await findProgramAddressSync(
+            [utf8.encode("user"), publicKey.toBuffer()],
+            program.programId
+          );
+          const user = await program.account.userAccount.fetch(userPda);
+          if (user) {
+            setInitialized(true);
+          }
+        } catch (error) {
+          console.log("No User");
+          setInitialized(false);
+        } finally {
+          setTransactionPending(false);
         }
+      }
+    };
+    start();
+  }, []);
+
+  const initUser = async () => {
+    if (program && publicKey) {
+      try {
+        setTransactionPending(true);
+        const name = getRandomName();
+        const avatar = getAvatarUrl(name);
+        const [userPda] = await findProgramAddressSync(
+          [utf8.encode("user"), publicKey.toBuffer()],
+          program.programId
+        );
+        await program.methods
+          .initUser(name, avatar)
+          .accounts({
+            userAccount: userPda,
+            authority: publicKey,
+            SystemProgram: SystemProgram.programId,
+          })
+          .rpc();
+        setInitialized(true);
       } catch (error) {
-        console.log("No User");
-        setInitialized(false);
+        console.log(error);
+      } finally {
+        setTransactionPending(false);
       }
     }
-  
-  }
-   start()
-  }, [])
-  
-
+  };
 
   return (
     <BlogContext.Provider
       value={{
         user,
         initialized,
+        initUser,
+
       }}
     >
       {children}

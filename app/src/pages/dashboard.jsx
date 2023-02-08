@@ -19,7 +19,7 @@ export const Dashboard = () => {
   //   avatar: "https://avatarfiles.alphacoders.com/283/thumb-283778.jpg",
   // }
 
-  const { user, initialized } = useBlog();
+  const { user, initialized, initUser } = useBlog();
   const posts = [];
 
   const createPost = () => {};
@@ -77,7 +77,7 @@ export const Dashboard = () => {
                 <Button
                   className="ml-3 mr-2"
                   onClick={() => {
-                    setShowModal(true);
+                   initUser();
                   }}
                 >
                   Initialize User
