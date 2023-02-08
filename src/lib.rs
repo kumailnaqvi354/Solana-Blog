@@ -6,7 +6,7 @@ pub mod states;
 use crate::{constant::*, states::*};
 
 //Is the program address
-declare_id!("yf2Svhk9Atphdq4LViqguxM5A2iBXwuU7mrSfSrCs7F");
+declare_id!("48CqxFjUUNYc1XUDWCHx1fpJ7fssa4NWWqCzKXSM3dPA");
 #[program]
 pub mod blog_sol {
     use super::*; //to use the above imported libraries and files in the program, we use super to call all at once
