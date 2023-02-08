@@ -34,6 +34,8 @@ export const BlogProvider = ({ children }) => {
   const [user, setUser] = useState();
   const [initialized, setInitialized] = useState(false);
   const [transactionPending, setTransactionPending] = useState(false);
+  const [showModal, setShowModal] = useState(false);
+  const [lastPostId, setLastPostId] = useState(0);
 
   // const user = {
   //   name: "dog",
@@ -68,7 +70,7 @@ export const BlogProvider = ({ children }) => {
     const start = async () => {
       console.log("starting app and fetching data");
       // IF there is a user FETCH POSTS
-      //IF NO iser Set state to false (need a button to init user)
+      //IF NO user Set state to false (need a button to init user)
       if (program && publicKey) {
         try {
           setTransactionPending(true);
@@ -81,6 +83,8 @@ export const BlogProvider = ({ children }) => {
           const user = await program.account.userAccount.fetch(userPda);
           if (user) {
             setInitialized(true);
+            setUser(user);
+            setLastPostId(user.lastPostId);
           }
         } catch (error) {
           console.log("No User");
@@ -91,7 +95,7 @@ export const BlogProvider = ({ children }) => {
       }
     };
     start();
-  }, []);
+  }, [program, publicKey]);
 
   const initUser = async () => {
     if (program && publicKey) {
@@ -120,13 +124,34 @@ export const BlogProvider = ({ children }) => {
     }
   };
 
+  const createPost= async (title, content) =>{
+    if(program && publicKey){
+      setTransactionPending(true);
+      try {
+        const [userPda] = await findProgramAddressSync(
+          [utf8.encode("user"), publicKey.toBuffer()],
+          program.programId
+        );
+        const [postPda] = findProgramAddressSync([utf8.encode('post'), publicKey.toBuffer(), Uint8Array.from([lastPostId])], program.programId);
+        await program.methods.createPost(title,content).accounts({postAccount: postPda, userAccount:userPda, authority: publicKey,SystemProgram: SystemProgram.programId}).rpc();
+        setShowModal(false);
+      } catch (error) {
+        console.log(error);
+      } finally{
+        setTransaction(false);
+      }
+    }
+  }
+
   return (
     <BlogContext.Provider
       value={{
         user,
         initialized,
         initUser,
-
+        showModal,
+        setShowModal,
+        createPost,
       }}
     >
       {children}
