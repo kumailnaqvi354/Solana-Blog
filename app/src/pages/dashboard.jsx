@@ -19,8 +19,8 @@ export const Dashboard = () => {
   //   avatar: "https://avatarfiles.alphacoders.com/283/thumb-283778.jpg",
   // }
 
-  const { user, initialized, initUser, showModal, setShowModal, createPost } = useBlog();
-  const posts = [];
+  const { user, initialized, initUser, showModal, setShowModal, createPost, posts } = useBlog();
+  // const posts = [];
 
 
   const onConnect = () => {

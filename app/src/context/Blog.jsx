@@ -11,8 +11,6 @@ import { getRandomName } from "src/functions/getRandomName";
 import idl from "../idl.json";
 import { findProgramAddressSync } from "@project-serum/anchor/dist/cjs/utils/pubkey";
 import { utf8 } from "@project-serum/anchor/dist/cjs/utils/bytes";
-import { publicKey } from "@project-serum/anchor/dist/cjs/utils";
-import { async } from "rxjs";
 
 const BlogContext = createContext();
 
@@ -21,7 +19,6 @@ const PROGRAM_KEY = new PublicKey(idl.metadata.address);
 
 export const useBlog = () => {
   const context = useContext(BlogContext);
-  // const
 
   if (!context) {
     throw new Error("Parent must be wrapped inside PostsProvider");
@@ -36,6 +33,7 @@ export const BlogProvider = ({ children }) => {
   const [transactionPending, setTransactionPending] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [lastPostId, setLastPostId] = useState(0);
+  const [posts, setPosts] = useState([]);
 
   // const user = {
   //   name: "dog",
@@ -74,7 +72,6 @@ export const BlogProvider = ({ children }) => {
       if (program && publicKey) {
         try {
           setTransactionPending(true);
-
           //check if there is a user
           const [userPda] = await findProgramAddressSync(
             [utf8.encode("user"), publicKey.toBuffer()],
@@ -85,6 +82,9 @@ export const BlogProvider = ({ children }) => {
             setInitialized(true);
             setUser(user);
             setLastPostId(user.lastPostId);
+            const postAccount = await program.account.postAccount.all();
+            setPosts(postAccount);
+            // console.log("post", post);
           }
         } catch (error) {
           console.log("No User");
@@ -138,7 +138,7 @@ export const BlogProvider = ({ children }) => {
       } catch (error) {
         console.log(error);
       } finally{
-        setTransaction(false);
+        setTransactionPending(false);
       }
     }
   }
@@ -152,6 +152,7 @@ export const BlogProvider = ({ children }) => {
         showModal,
         setShowModal,
         createPost,
+        posts,
       }}
     >
       {children}
